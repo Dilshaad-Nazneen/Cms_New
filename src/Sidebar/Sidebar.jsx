@@ -91,6 +91,7 @@ import {
 } from "lucide-react";
 
 import "./Sidebar.css";
+import { getInitials, getRoleProfile } from "../profile/sessionProfile";
 
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -104,6 +105,10 @@ const items = [
 ];
 
 function Sidebar() {
+  const profile = getRoleProfile("admin");
+  const profileName = profile.name || "Admin";
+  const profileSub = profile.email || profile.roleLabel || "Admin Console";
+
   return (
     <aside className="sidebar">
 
@@ -136,14 +141,16 @@ function Sidebar() {
         ))}
       </div>
 
-      {/* FOOTER */}
-      {/* <div className="status-card">
-        <div className="pulse"></div>
-        <div>
-          <b>System Status</b>
-          <p>All services operational</p>
+      <div className="sidebar-profile">
+        <div className="sidebar-avatar">{getInitials(profileName)}</div>
+        <div className="sidebar-profile-info">
+          <b>{profileName}</b>
+          <span>{profileSub}</span>
+          <p>
+            <span className="sidebar-status-dot" /> Online
+          </p>
         </div>
-      </div> */}
+      </div>
 
     </aside>
   );

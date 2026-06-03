@@ -29,6 +29,7 @@ const getInitials = (name) =>
 function DoctorSidebar() {
   const doctorName = localStorage.getItem("doctorName") || "Doctor";
   const hospitalName = localStorage.getItem("hospitalName") || "Hospital System";
+  const displayName = `Dr. ${doctorName}`.replace(/^Dr\.\s*Dr\./i, "Dr.");
 
   return (
     <aside className="dr-sidebar">
@@ -65,9 +66,9 @@ function DoctorSidebar() {
 
       {/* ── Doctor Profile (bottom) ── */}
       <div className="dr-sidebar-profile">
-        <div className="dr-sidebar-avatar">{getInitials(doctorName)}</div>
+        <div className="dr-sidebar-avatar">{getInitials(displayName)}</div>
         <div className="dr-sidebar-profile-info">
-          <p className="dr-sidebar-profile-name">Dr. {doctorName}</p>
+          <p className="dr-sidebar-profile-name">{displayName}</p>
           <p className="dr-sidebar-profile-role">{hospitalName}</p>
           <p className="dr-sidebar-profile-status">
             <span className="dr-status-dot" /> Online

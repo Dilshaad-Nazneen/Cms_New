@@ -3,11 +3,12 @@ import { NavLink } from "react-router-dom";
 import {
   CalendarPlus,
   ClipboardList,
-  FileText,
   Gauge,
   Stethoscope,
   UserPlus,
 } from "lucide-react";
+import { getInitials } from "../profile/sessionProfile";
+import { getReceptionistProfile } from "./receptionSession";
 
 const items = [
   { to: "/reception/dashboard", label: "Reception Dashboard", icon: Gauge },
@@ -17,6 +18,10 @@ const items = [
 ];
 
 function ReceptionSidebar() {
+  const profile = getReceptionistProfile();
+  const profileName = profile.name || "Receptionist";
+  const hospitalName = profile.hospitalName || "MediSuite";
+
   return (
     <aside className="rc-sidebar">
       <div className="rc-brand">
@@ -47,13 +52,15 @@ function ReceptionSidebar() {
         })}
       </nav>
 
-      <div className="rc-help">
-        <strong>Need help?</strong>
-        <p>Book appointments, register patients, and manage billing.</p>
-        <button type="button">
-          <FileText size={14} />
-          View docs
-        </button>
+      <div className="rc-sidebar-profile">
+        <div className="rc-sidebar-avatar">{getInitials(profileName)}</div>
+        <div className="rc-sidebar-profile-info">
+          <strong>{profileName}</strong>
+          <span>{hospitalName}</span>
+          <p>
+            <span className="rc-status-dot" /> Online
+          </p>
+        </div>
       </div>
     </aside>
   );
