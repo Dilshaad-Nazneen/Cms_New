@@ -96,6 +96,7 @@ import {
 } from "lucide-react";
 
 import "./Sidebar.css";
+import { getInitials, getRoleProfile } from "../profile/sessionProfile";
 
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -123,10 +124,6 @@ const superAdminItems = [
 ];
 
 function Sidebar() {
-  const location = useLocation();
-  const isSuperAdmin = location.pathname.startsWith("/superadmin");
-  const navItems = isSuperAdmin ? superAdminItems : items;
-
   return (
     <aside className="sidebar">
 
@@ -159,14 +156,16 @@ function Sidebar() {
         ))}
       </div>
 
-      {/* FOOTER */}
-      {/* <div className="status-card">
-        <div className="pulse"></div>
-        <div>
-          <b>System Status</b>
-          <p>All services operational</p>
+      <div className="sidebar-profile">
+        <div className="sidebar-avatar">{getInitials(profileName)}</div>
+        <div className="sidebar-profile-info">
+          <b>{profileName}</b>
+          <span>{profileSub}</span>
+          <p>
+            <span className="sidebar-status-dot" /> Online
+          </p>
         </div>
-      </div> */}
+      </div>
 
     </aside>
   );
