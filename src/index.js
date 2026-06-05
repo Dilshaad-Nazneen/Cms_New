@@ -5,6 +5,20 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const originalFetch = window.fetch.bind(window);
+const INVALID_STATIC_TOKENS = new Set(["static-superadmin-token"]);
+
+const clearInvalidStoredTokens = () => {
+  [
+    "token",
+    "adminToken",
+    "doctorToken",
+    "receptionistToken",
+  ].forEach((key) => {
+    if (INVALID_STATIC_TOKENS.has(localStorage.getItem(key))) {
+      localStorage.removeItem(key);
+    }
+  });
+};
 
 const getRequestPath = (input) => {
   const url =
@@ -36,6 +50,8 @@ const isPublicAuthRequest = (input) => {
 };
 
 window.fetch = (input, init = {}) => {
+  clearInvalidStoredTokens();
+
   const token =
     localStorage.getItem("token") ||
     localStorage.getItem("adminToken") ||

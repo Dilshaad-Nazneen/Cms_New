@@ -109,6 +109,23 @@ const readJson = async (response) => {
   }
 };
 
+const getValidationMessage = (payload) => {
+  if (!payload || typeof payload !== "object") return "";
+
+  if (payload.errors && typeof payload.errors === "object") {
+    return Object.entries(payload.errors)
+      .flatMap(([field, messages]) => {
+        const fieldMessages = Array.isArray(messages) ? messages : [messages];
+        return fieldMessages
+          .filter(Boolean)
+          .map((message) => `${field}: ${message}`);
+      })
+      .join(" ");
+  }
+
+  return "";
+};
+
 export const superAdminRequest = async (path, options = {}) => {
   const { body, headers, ...rest } = options;
   const response = await fetch(apiUrl(path), {
@@ -123,6 +140,7 @@ export const superAdminRequest = async (path, options = {}) => {
 
   if (!response.ok) {
     const message =
+      getValidationMessage(payload) ||
       pick(payload, ["message", "error", "title"], "") ||
       `Request failed with status ${response.status}`;
     throw new Error(message);
@@ -132,7 +150,7 @@ export const superAdminRequest = async (path, options = {}) => {
 };
 
 export const normalizeClinic = (clinic = {}) => ({
-  id: pick(clinic, ["id", "clinicId", "clinicID", "_id"]),
+  id: pick(clinic, ["id", "clinicId", "clinicID", "hospitalId", "hospitalID", "_id"]),
   name: pick(clinic, ["name", "clinicName", "clinic_name"]),
   address: pick(clinic, ["address", "clinicAddress", "location"]),
   contactNumber: pick(clinic, ["contactNumber", "phone", "phoneNumber", "mobile", "contact"]),

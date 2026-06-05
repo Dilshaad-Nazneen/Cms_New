@@ -29,14 +29,6 @@ const LogoIcon = () => (
 
 const LOGIN_API = apiUrl('Auth/login');
 
-const SUPERADMIN_CREDENTIALS = {
-  email: 'superadmin@medicore.in',
-  password: 'SuperAdmin@123',
-  token: 'static-superadmin-token',
-  role: 'superadmin',
-  name: 'Super Admin',
-};
-
 const decodeJwtPayload = (token) => {
   try {
     const payload = token.split('.')[1];
@@ -144,22 +136,7 @@ const AdminLogin = () => {
     setErrors({});
 
     try {
-      const normalizedEmail = email.trim().toLowerCase();
-
-      if (
-        normalizedEmail === SUPERADMIN_CREDENTIALS.email &&
-        password === SUPERADMIN_CREDENTIALS.password
-      ) {
-        clearStoredSession();
-        localStorage.setItem('token', SUPERADMIN_CREDENTIALS.token);
-        localStorage.setItem('adminToken', SUPERADMIN_CREDENTIALS.token);
-        localStorage.setItem('userRole', SUPERADMIN_CREDENTIALS.role);
-        localStorage.setItem('adminRole', SUPERADMIN_CREDENTIALS.role);
-        localStorage.setItem('adminEmail', SUPERADMIN_CREDENTIALS.email);
-        localStorage.setItem('adminName', SUPERADMIN_CREDENTIALS.name);
-        navigate('/superadmin/dashboard', { replace: true });
-        return;
-      }
+      const trimmedEmail = email.trim();
 
       const response = await fetch(LOGIN_API, {
         method: 'POST',
@@ -167,7 +144,7 @@ const AdminLogin = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: email.trim(),
+          email: trimmedEmail,
           password,
         }),
       });
@@ -195,9 +172,9 @@ const AdminLogin = () => {
         );
       const normalizedRole = String(role || '').toLowerCase();
 
-      if (!['admin', 'doctor', 'receptionist'].includes(normalizedRole)) {
+      if (!['superadmin', 'super_admin', 'admin', 'doctor', 'receptionist'].includes(normalizedRole)) {
         setErrors({
-          api: 'Access denied. This account does not have Admin, Doctor, or Receptionist role.',
+          api: 'Access denied. This account does not have Super Admin, Admin, Doctor, or Receptionist role.',
         });
         return;
       }
@@ -220,6 +197,15 @@ const AdminLogin = () => {
       localStorage.setItem('userRole', role);
       localStorage.setItem('hospitalId', String(hospitalId));
       localStorage.setItem('hospitalName', data.hospitalName || '');
+
+      if (normalizedRole === 'superadmin' || normalizedRole === 'super_admin') {
+        localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('adminRole', 'superadmin');
+        localStorage.setItem('adminEmail', data.email || trimmedEmail);
+        localStorage.setItem('adminName', displayName);
+        navigate('/superadmin/dashboard', { replace: true });
+        return;
+      }
 
       if (normalizedRole === 'doctor') {
         localStorage.setItem('doctorToken', data.token);
