@@ -4,6 +4,7 @@ import {
   CalendarPlus,
   ClipboardList,
   Gauge,
+  HeartPulse,
   Stethoscope,
   UserPlus,
 } from "lucide-react";
@@ -14,6 +15,7 @@ import { getClinicDisplayName } from "../utils/clinicDisplay";
 const items = [
   { to: "/reception/dashboard", label: "Reception Dashboard", icon: Gauge },
   { to: "/reception/patients", label: "Patients", icon: UserPlus },
+  { to: "/reception/medical-history", label: "Medical History", icon: HeartPulse },
   { to: "/reception/appointments", label: "Book Appointment", icon: CalendarPlus },
   { to: "/reception/billing", label: "Billing", icon: ClipboardList },
 ];
