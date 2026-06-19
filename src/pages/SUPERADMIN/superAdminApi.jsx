@@ -72,9 +72,6 @@ const writeLocalRoleOverrides = (overrides) => {
   localStorage.setItem(LOCAL_ROLE_OVERRIDES_KEY, JSON.stringify(overrides));
 };
 
-const getRoleStorageKey = (role = {}) =>
-  String(pick(role, ["id", "roleName", "name", "key"], "")).trim();
-
 const getRoleStorageKeys = (role = {}) =>
   Array.from(
     new Set(
