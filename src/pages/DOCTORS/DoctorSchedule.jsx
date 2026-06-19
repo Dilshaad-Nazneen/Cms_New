@@ -7,6 +7,7 @@ import {
   hasAdminPermission,
   requireAdminPermission,
 } from "../../utils/adminPermissions";
+import { formatDateMMDDYYYY } from "../../utils/dateFormat";
 
 const DOCTORS_API = apiUrl("Doctor");
 const SCHEDULE_API = apiUrl("Schedule");
@@ -234,11 +235,7 @@ const buildScheduledDates = (startDate, endDate, workingDays) => {
         weekday: DAY_MAPPING.find(
           (day) => day.dayIndex === currentDate.getDay()
         )?.full,
-        label: currentDate.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
+        label: formatDateMMDDYYYY(currentDate),
       });
     }
   }
@@ -453,12 +450,7 @@ function Schedule() {
 
   const previewDateValue = parseDateInput(previewDate);
   const previewDateLabel = previewDateValue
-    ? previewDateValue.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+    ? formatDateMMDDYYYY(previewDateValue)
     : previewDate;
 
   return (

@@ -252,6 +252,7 @@ function Doctors() {
 
   const [toggleLoadingId, setToggleLoadingId] = useState(null);
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const clinicName = getClinicDisplayName({}, "Clinic");
 
   const openAddDoctor = () => {
     if (!requireAdminPermission("Create", denyPermission)) return;
@@ -665,6 +666,11 @@ function Doctors() {
         </div>
       </div>
 
+      <div className="doctors-clinic-banner">
+        <span>Clinic Name</span>
+        <strong>{clinicName}</strong>
+      </div>
+
       <div className="doctors-search-bar">
         <Search size={16} />
         <input
@@ -682,7 +688,7 @@ function Doctors() {
           <span>Name</span>
           <span>Specialization</span>
           <span>Experience</span>
-          <span>Fees</span>
+          <span className="doctors-fee-heading">Doctor Fees</span>
           <span>Contact</span>
           <span>Status</span>
           <span>Available Time</span>
@@ -912,7 +918,7 @@ function Doctors() {
                 </div>
 
                 <div className="doctor-edit-field">
-                  <label htmlFor="edit-fees">Fees</label>
+                  <label htmlFor="edit-fees">Doctor Fees</label>
                   <input
                     id="edit-fees"
                     name="fees"
@@ -921,7 +927,7 @@ function Doctors() {
                     step="0.01"
                     value={editForm.fees}
                     onChange={handleEditFieldChange}
-                    className={editFieldErrors.fees ? "is-invalid" : ""}
+                    className={`doctor-edit-fee-input${editFieldErrors.fees ? " is-invalid" : ""}`}
                     aria-invalid={Boolean(editFieldErrors.fees)}
                   />
                   {editFieldErrors.fees ? (

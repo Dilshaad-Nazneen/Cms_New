@@ -224,6 +224,7 @@ import {
   hasAdminPermission,
   requireAdminPermission,
 } from "../../utils/adminPermissions";
+import { getClinicDisplayName } from "../../utils/clinicDisplay";
 import {
   onlyAlpha,
   onlyIndianMobileValue,
@@ -351,6 +352,7 @@ function AddDoctor() {
   const navigate = useNavigate();
   const toast = useToast();
   const canCreate = hasAdminPermission("Create");
+  const clinicName = getClinicDisplayName({}, "Clinic");
 
   const [form, setForm] = useState({
     name: "",
@@ -586,6 +588,11 @@ function AddDoctor() {
           <p>Enter doctor details below.</p>
         </div>
 
+        <div className="add-doctor-clinic-banner">
+          <span>Clinic Name</span>
+          <strong>{clinicName}</strong>
+        </div>
+
         <form className="add-doctor-form" onSubmit={handleSubmit} noValidate>
           <div className="add-doctor-grid">
 
@@ -674,14 +681,14 @@ function AddDoctor() {
             </div>
 
             <div className="add-doctor-input-group">
-              <label>Consultation Fee</label>
+              <label>Doctor Fees</label>
               <input
                 name="fees"
                 type="text"
                 inputMode="decimal"
                 value={form.fees}
                 onChange={handleChange}
-                className={fieldErrors.fees ? "is-invalid" : ""}
+                className={`add-doctor-fee-input${fieldErrors.fees ? " is-invalid" : ""}`}
                 required
               />
               {fieldErrors.fees ? (
