@@ -221,10 +221,6 @@ import { apiUrl } from "../../config/api";
 import { useToast } from "../../components/ToastProvider";
 import { getClinicDisplayName } from "../../utils/clinicDisplay";
 import {
-  canUsePermission,
-  fetchAndStoreRolePermissions,
-} from "../../utils/authorization";
-import {
   onlyAlpha,
   onlyIndianMobileValue,
   onlyNumberValue,
@@ -233,8 +229,12 @@ import {
   validateMobile,
   validateNumeric,
   validateRequired,
+  validateText,
 } from "../../utils/validation";
-
+import {
+  canUsePermission,
+  fetchAndStoreRolePermissions,
+} from "../../utils/authorization";
 const DOCTORS_API_URL =
   apiUrl("Doctor");
 
@@ -363,6 +363,7 @@ function AddDoctor() {
   const [form, setForm] = useState({
     name: "",
     specialization: "",
+    areaofExpertise: "",
     qualification: "",
     experience: "0",
     fees: "0",
@@ -529,6 +530,7 @@ function AddDoctor() {
     const nextErrors = {
       name: validateAlpha(values.name, "Doctor name"),
       specialization: validateAlpha(values.specialization, "Specialization"),
+      areaofExpertise: validateText(values.areaofExpertise, "Area of expertise"),
       qualification: validateRequired(values.qualification, "Qualification"),
       experience: validateNumeric(values.experience, "Experience", {
         integer: true,
@@ -582,6 +584,7 @@ function AddDoctor() {
       experience: String(Number(form.experience) || 0),
       qualification: form.qualification.trim(),
       consultationFee: Number(formattedForm.fees) || 0,
+      areaofExpertise: form.areaofExpertise.trim(),
       email: form.email.trim(),
       phoneNumber: form.phone.trim(),
       isActive: form.isActive === "true",
@@ -693,6 +696,22 @@ function AddDoctor() {
               {fieldErrors.experience ? (
                 <span className="add-doctor-field-error">
                   {fieldErrors.experience}
+                </span>
+              ) : null}
+            </div>
+
+            <div className="add-doctor-input-group">
+              <label>Area of Expertise</label>
+              <input
+                name="areaofExpertise"
+                value={form.areaofExpertise}
+                onChange={handleChange}
+                className={fieldErrors.areaofExpertise ? "is-invalid" : ""}
+                required
+              />
+              {fieldErrors.areaofExpertise ? (
+                <span className="add-doctor-field-error">
+                  {fieldErrors.areaofExpertise}
                 </span>
               ) : null}
             </div>

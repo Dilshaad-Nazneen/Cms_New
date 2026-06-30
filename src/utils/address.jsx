@@ -1,5 +1,5 @@
 import { validateRequired } from "./validation";
-import { INDIA_COUNTRY } from "./indianLocations";
+import { INDIA_COUNTRY, INDIAN_STATES } from "./indianLocations";
 
 export const emptyAddressParts = {
   streetVillage: "",
@@ -52,7 +52,16 @@ export const parseAddress = (address = "") => {
     state = normalized[2] || "";
   } else if (normalized.length === 2) {
     streetVillage = normalized[0] || "";
-    city = normalized[1] || "";
+    if (
+      INDIAN_STATES.some(
+        (stateName) =>
+          stateName.toLowerCase() === String(normalized[1] || "").toLowerCase()
+      )
+    ) {
+      state = normalized[1] || "";
+    } else {
+      city = normalized[1] || "";
+    }
   } else if (normalized.length === 1) {
     streetVillage = normalized[0] || "";
   }
@@ -79,6 +88,38 @@ export const buildAddress = (parts = {}) =>
     .map((part) => String(part || "").trim())
     .filter(Boolean)
     .join(", ");
+
+export const buildAddressPayload = (parts = {}) => {
+  const normalized = {
+    ...emptyAddressParts,
+    ...parts,
+    country: String(parts.country || INDIA_COUNTRY).trim() || INDIA_COUNTRY,
+    pincode: onlyPincodeValue(parts.pincode || ""),
+  };
+
+  const streetVillage = String(normalized.streetVillage || "").trim();
+  const area = String(normalized.area || "").trim();
+  const city = String(normalized.city || "").trim();
+  const state = String(normalized.state || "").trim();
+  const country = normalized.country;
+  const pincode = String(normalized.pincode || "").trim();
+
+  return {
+    addressParts: normalized,
+    Street: streetVillage,
+    street: streetVillage,
+    Area: area,
+    area,
+    City: city,
+    city,
+    State: state,
+    state,
+    Country: country,
+    country,
+    PostalCode: pincode,
+    postalCode: pincode,
+  };
+};
 
 export const validateAddressParts = (parts = {}, label = "Address") => {
   const errors = {};
