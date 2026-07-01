@@ -1001,6 +1001,9 @@ const getMonthLabel = (value) => {
   const monthOnlyMatch = text.match(/^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*$/i);
   const date = monthOnlyMatch ? new Date(`${text} 1, ${new Date().getFullYear()}`) : value ? new Date(value) : new Date();
   if (Number.isNaN(date.getTime())) return "Unknown";
+  if (date.getFullYear() < 2020) {
+    date.setFullYear(new Date().getFullYear());
+  }
   return date.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
 };
 
@@ -2595,11 +2598,19 @@ export const fetchDashboardData = async () => {
     ...summaryData,
     totalRevenue: getDashboardMetric({ ...dashboardData, ...summaryData }, ["totalRevenue", "revenue", "revenueSummary"]),
   };
+  const dashboardRevenueData = buildMonthlyRevenueRows(asArray(revenueData));
+  const totalUsers = getDashboardMetric(
+    { ...dashboardData, ...nextSummary },
+    ["totalUsers", "users", "userCount"]
+  );
 
   return {
     dashboard: dashboardData,
     summary: nextSummary,
-    revenueData: buildMonthlyRevenueRows(asArray(revenueData)),
+    revenueData: dashboardRevenueData.map((point) => ({
+      ...point,
+      users: toNumber(point.users) || totalUsers,
+    })),
     activities: buildDashboardActivities(
       localActivityRows,
       auditActivityRows,
