@@ -23,6 +23,7 @@ import {
   Stethoscope,
   Users,
   Calendar,
+  DollarSign,
   CalendarCheck,
   DollarSign,
   UserPlus,
@@ -505,7 +506,19 @@ function Dashboard() {
           dashboardData?.totalPatients
         ),
       icon:
-        UserRoundCheck,
+        Clock,
+      color:
+        "amber",
+    },
+    {
+      label:
+        "Total Revenue",
+      value:
+        formatCurrency(
+          totalRevenue
+        ),
+      icon:
+        DollarSign,
       color:
         "orange",
       route:
