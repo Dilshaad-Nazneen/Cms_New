@@ -25,9 +25,14 @@ import {
   Calendar,
   IndianRupee,
   CalendarCheck,
-  CheckCircle,
-  Clock,
+  DollarSign,
   UserPlus,
+  UserRoundCheck,
+  Building2,
+  Phone,
+  Mail,
+  MapPin,
+  ShieldCheck,
 } from "lucide-react";
 
 import { useLocation, useNavigate } from "react-router-dom";
@@ -41,6 +46,7 @@ import {
   fetchAndStoreRolePermissions,
 } from "../utils/authorization";
 import { useToast } from "../components/ToastProvider";
+import { getClinicDisplayName } from "../utils/clinicDisplay";
 
 /* ================= API ================= */
 
@@ -69,6 +75,55 @@ const getPaddedMax = (value) =>
     Math.ceil(Number(value || 0) * 1.25)
   );
 
+const pickValue = (record = {}, keys = [], fallback = "") => {
+  for (const key of keys) {
+    const value =
+      key
+        .split(".")
+        .reduce(
+          (current, part) =>
+            current && current[part] !== undefined
+              ? current[part]
+              : undefined,
+          record
+        );
+
+    if (
+      value !== undefined &&
+      value !== null &&
+      String(value).trim() !== "" &&
+      String(value).trim().toLowerCase() !== "string"
+    ) {
+      return value;
+    }
+  }
+
+  return fallback;
+};
+
+const getClinicStatusText = (clinic = {}, dashboardData = {}) => {
+  const status =
+    pickValue(
+      clinic,
+      ["status", "Status"],
+      pickValue(dashboardData, ["clinicStatusText", "status"], "")
+    );
+
+  if (typeof status === "boolean") {
+    return status ? "Active" : "Inactive";
+  }
+
+  const activeValue =
+    pickValue(clinic, ["isActive", "active"], "");
+
+  if (typeof activeValue === "boolean") {
+    return activeValue ? "Active" : "Inactive";
+  }
+
+  const text = String(status || "Active").trim();
+  return text.toLowerCase() === "inactive" ? "Inactive" : "Active";
+};
+
 /* ================= COMPONENT ================= */
 
 function Dashboard() {
@@ -91,6 +146,9 @@ function Dashboard() {
   const [permissionRecord,
     setPermissionRecord] =
     useState(null);
+  const [clinicCardFlipped,
+    setClinicCardFlipped] =
+    useState(false);
   const canCreateDoctor =
     !permissionsLoading &&
     canUsePermission(
@@ -184,9 +242,9 @@ function Dashboard() {
                 "true",
               ...(token
                 ? {
-                    Authorization:
-                      `Bearer ${token}`,
-                  }
+                  Authorization:
+                    `Bearer ${token}`,
+                }
                 : {}),
             },
           });
@@ -294,43 +352,81 @@ function Dashboard() {
     },
   ];
 
+  const clinicRecord =
+    dashboardData?.clinic ||
+    dashboardData?.clinicDetails ||
+    dashboardData?.hospital ||
+    dashboardData?.hospitalDetails ||
+    {};
+
+  const clinicInfo = {
+    name:
+      getClinicDisplayName(
+        {
+          ...dashboardData,
+          ...clinicRecord,
+        },
+        "Clinic"
+      ),
+    contactNumber:
+      pickValue(
+        clinicRecord,
+        [
+          "contactNumber",
+          "phoneNumber",
+          "phone",
+          "mobile",
+          "contact",
+        ],
+        pickValue(
+          dashboardData,
+          [
+            "clinicContactNumber",
+            "contactNumber",
+            "phoneNumber",
+            "phone",
+          ],
+          "-"
+        )
+      ),
+    email:
+      pickValue(
+        clinicRecord,
+        ["email", "clinicEmail", "hospitalEmail"],
+        pickValue(
+          dashboardData,
+          ["clinicEmail", "email", "hospitalEmail"],
+          "-"
+        )
+      ),
+    status:
+      getClinicStatusText(
+        clinicRecord,
+        dashboardData
+      ),
+    address:
+      pickValue(
+        clinicRecord,
+        [
+          "fullAddress",
+          "address",
+          "clinicAddress",
+          "hospitalAddress",
+        ],
+        pickValue(
+          dashboardData,
+          [
+            "clinicFullAddress",
+            "fullAddress",
+            "clinicAddress",
+            "address",
+          ],
+          "-"
+        )
+      ),
+  };
+
   const summaryCards = [
-    {
-      label:
-        "Total Doctors",
-      value:
-        formatNumber(
-          dashboardData?.totalDoctors
-        ),
-      icon:
-        Stethoscope,
-      color:
-        "",
-    },
-    {
-      label:
-        "Total Patients",
-      value:
-        formatNumber(
-          dashboardData?.totalPatients
-        ),
-      icon:
-        Users,
-      color:
-        "blue",
-    },
-    {
-      label:
-        "Total Appointments",
-      value:
-        formatNumber(
-          dashboardData?.totalAppointments
-        ),
-      icon:
-        Calendar,
-      color:
-        "purple",
-    },
     {
       label:
         "Today's Appointments",
@@ -341,31 +437,9 @@ function Dashboard() {
       icon:
         CalendarCheck,
       color:
-        "green",
-    },
-    {
-      label:
-        "Completed Appointments",
-      value:
-        formatNumber(
-          dashboardData?.completedAppointments
-        ),
-      icon:
-        CheckCircle,
-      color:
-        "teal",
-    },
-    {
-      label:
-        "Waiting Appointments",
-      value:
-        formatNumber(
-          dashboardData?.waitingAppointments
-        ),
-      icon:
-        Clock,
-      color:
-        "amber",
+        "blue",
+      route:
+        "/appointments",
     },
     {
       label:
@@ -375,9 +449,54 @@ function Dashboard() {
           totalRevenue
         ),
       icon:
-        IndianRupee,
+        DollarSign,
+      color:
+        "purple",
+      route:
+        "/reports",
+    },
+    {
+      label:
+        "Total Doctors",
+      value:
+        formatNumber(
+          dashboardData?.totalDoctors
+        ),
+      icon:
+        Stethoscope,
+      color:
+        "teal",
+      route:
+        "/doctors",
+    },
+    {
+      label:
+        "Total Receptionists",
+      value:
+        formatNumber(
+          dashboardData?.totalReceptionists ??
+          dashboardData?.receptionistCount
+        ),
+      icon:
+        Users,
+      color:
+        "green",
+      route:
+        "/receptionists",
+    },
+    {
+      label:
+        "Total Patients",
+      value:
+        formatNumber(
+          dashboardData?.totalPatients
+        ),
+      icon:
+        UserRoundCheck,
       color:
         "orange",
+      route:
+        "/patients",
     },
   ];
 
@@ -427,17 +546,76 @@ function Dashboard() {
 
       <div className="dashboard-stats">
 
+        <div
+          className={`dashboard-clinic-flip-card ${clinicCardFlipped ? "is-flipped" : ""}`}
+          onClick={() => setClinicCardFlipped((prev) => !prev)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              setClinicCardFlipped((prev) => !prev);
+            }
+          }}
+          aria-label="Flip clinic details card"
+        >
+          <div className="dashboard-clinic-flip-card-inner">
+            <div className="dashboard-clinic-flip-front">
+              <div className="dashboard-clinic-flip-header">Clinic Info</div>
+              <div className="dashboard-clinic-flip-row">
+                <span className="dashboard-clinic-flip-label">Clinic Name</span>
+                <span className="dashboard-clinic-flip-value">{clinicInfo.name || "-"}</span>
+              </div>
+              <div className="dashboard-clinic-flip-row">
+                <span className="dashboard-clinic-flip-label">Contact Number</span>
+                <span className="dashboard-clinic-flip-value">{clinicInfo.contactNumber || "-"}</span>
+              </div>
+              <div className="dashboard-clinic-flip-row">
+                <span className="dashboard-clinic-flip-label">Email</span>
+                <span className="dashboard-clinic-flip-value">{clinicInfo.email || "-"}</span>
+              </div>
+              <div className="dashboard-clinic-flip-row">
+                <span className="dashboard-clinic-flip-label">Status</span>
+                <span className={`dashboard-clinic-flip-status ${clinicInfo.status?.toLowerCase() === "active" ? "active" : "inactive"}`}>
+                  {clinicInfo.status || "-"}
+                </span>
+              </div>
+              <div className="dashboard-clinic-flip-footer">
+                Tap or press Enter to view full address.
+              </div>
+            </div>
+            <div className="dashboard-clinic-flip-back">
+              <div className="dashboard-clinic-flip-header">Full Address</div>
+              <div className="dashboard-clinic-flip-address">
+                {clinicInfo.address || "-"}
+              </div>
+              <div className="dashboard-clinic-flip-footer">
+                Tap or press Enter to flip back.
+              </div>
+            </div>
+          </div>
+        </div>
+
         {summaryCards.map(
           ({
             label,
             value,
             icon: Icon,
             color,
+            route,
           }) => (
 
             <div
               className="dashboard-stat-card"
               key={label}
+              role={route ? "button" : undefined}
+              tabIndex={route ? 0 : undefined}
+              onClick={() => route && navigate(route)}
+              onKeyDown={(event) => {
+                if ((event.key === "Enter" || event.key === " ") && route) {
+                  navigate(route);
+                }
+              }}
+              aria-label={route ? `Go to ${label}` : label}
             >
 
               <div
@@ -450,13 +628,13 @@ function Dashboard() {
 
               <div className="dashboard-stat-body">
 
-                <h2 className="dashboard-stat-value">
-                  {value}
-                </h2>
-
                 <p className="dashboard-stat-label">
                   {label}
                 </p>
+
+                <h2 className="dashboard-stat-value">
+                  {value}
+                </h2>
 
               </div>
 
